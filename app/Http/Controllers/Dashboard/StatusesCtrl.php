@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Http\Controllers\Dashboard;
+
+use App\Http\Controllers\Controller,
+    App\Http\Models\Statuses,
+    Illuminate\Http\Request,
+    Yajra\Datatables\Datatables;
+
+class StatusesCtrl extends Controller
+{
+    private $my_module;
+    private $log;
+    
+
+    public function __construct(){
+        $this->my_module    = 'statuses';
+        $this->js           = array();
+        $this->log          = new \ChangeLog;
+    }
+
+    public function index(Request $request)
+    {
+        try{
+            $key_cross = '_'.uniqid();
+            $request->session()->forget('key_cross');
+            $request->session()->put('key_cross',$key_cross);
+
+            $appid  = substr(date('D'),0,1).sha1( uniqid() );
+
+            $param['appid']         = $appid;
+            $param['csrf_token']    = csrf_token();
+            $param['insertupdatedelete'] = url('statuses/insert-update-delete');
+            $param['getData']       = url('statuses/data');
+            $param['key_salt']      = $key_cross;
+
+            array_push($this->js,'statuses.js');
+
+            $data['data']   = config('auth.udata');
+            $data['menu']   = $this->my_module;
+            $data['filejs'] = view_js($this->js, $param, $request);
+            $data['app']    = $appid;
+            
+            return view('dashboard.statuses.v_index', $data);
+        }catch(\Exception $e){
+            if(config('app.debug')){
+                return $e->getMessage();
+            }else{
+                $err['code'] = 500;
+                $err['message'] = 'Error Exception in try action';
+                return response($err)->header('Content-Type', 'application/json');
+            }
+        }
+    }
+
+    public function getData(Datatables $datatables, Request $request)
+    {
+        try{
+            $key = $request->header('Accept-Dinamic-Key');
+
+            if($request->session()->has('key_cross')) {
+                $key_cross = $request->session()->get('key_cross');
+            }else{
+                return 'Halaman telah kadaluarsa, silakan muat ulang';
+            }
+
+            if(config('app.debug')) { $key=true;$key_cross=true; }
+
+            if($key && $key==$key_cross){
+                $q    = Statuses::query()
+                        ->select(
+                            'id         as uuid',
+                            'module     as modul',
+                            'name       as nama',
+                            'foreign_key as key',
+                            'bgcolor    as bg',
+                            'fontcolor  as font',
+                            'updated_at as modify'
+                        );
+        
+                return   $datatables->eloquent($q)
+                                    ->editColumn('uuid', function ($x) {
+                                        return generate_code( $length=5, $sm_alpha = false, $lg_alpha = false, $number= true ) . $x->uuid;
+                                    })
+                                    ->editColumn('modify', function ($x) {
+                                        if($x->modify=='') return '01.01.2020 00:00';
+                                        $date = date_create($x->modify);
+                                        return date_format($date,"d.m.Y H:i");
+                                    })
+                                    ->make();
+            }
+        }catch(\Exception $e){
+            if(config('app.debug')){
+                return $e->getMessage();
+            }else{
+                $err['code'] = 500;
+                $err['message'] = 'Error Exception in try action';
+                return response($err)->header('Content-Type', 'application/json');
+            }
+        }
+    }
+
+    public function insert_update_delete(Request $request)
+    {
+        try{
+            if($request->session()->has('key_cross')) {
+                $key_cross = $request->session()->get('key_cross');
+            }else{
+                return 'Halaman telah kadaluarsa, silakan muat ulang';
+            }
+
+            $_q = $request->input('_q');
+            $_hash = $request->header('_hash');
+            
+            $validator = app()->make('validator');
+
+            $validate = $validator->make($request->all(), [
+                    '_q' => 'required'
+                ]
+            );
+            if ($validate->fails()) return 'Perhatikan, Inputan perlu di isi dengan benar !';
+
+            // decript
+            $Encryption = new \Encryption();
+            $_q = $Encryption->decrypt($_q, $key_cross);
+            $_q = json_decode($_q,false);
+            $uuid = $_q->uuid;
+            $uuid = ($uuid=='') ? false:$uuid;
+            $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
+            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            $uuid = substr($uuid,5);
+            
+            if($request->_delete){
+                $stt  = Statuses::where('id', $uuid)->first();
+                $this->log->insert_costume_data('statuses', $row_id=$stt->id, $old_value='Exist', $new_value='Delete', $column='DATA');
+                Statuses::destroy($stt->id);
+                return '*OK*';
+            }else{
+                $foreign_key= $_q->key;
+                $name       = $_q->name;
+                $module     = $_q->modul;
+                $bgcolor    = $_q->bg;
+                $fontcolor  = $_q->font;
+                if($uuid){
+                    $old  = Statuses::where('id', $uuid)->first();
+                    $stt = Statuses::where('id', $uuid)->firstOrFail();
+                }else{
+                    $stt           = new Statuses;
+                }
+                $stt->foreign_key= $foreign_key;
+                $stt->name      = $name;
+                $stt->module    = $module;
+                $stt->bgcolor   = $bgcolor;
+                $stt->fontcolor = $fontcolor;
+                
+                if(!$stt->save()){
+                    return 'Maaf, tidak dapat menyimpan data';
+                }else{
+                    if($uuid){
+                        $this->log->createLog($stt->getChanges(), $old->getOriginal(), 'statuses', $old->id);
+                    }else{
+                        $this->log->firstLog('statuses', $stt->id);
+                    }
+                    return '*OK*';
+                }
+            }
+        }catch(\Exception $e){
+            return (config('app.debug')) ? $e->getMessage() : 'Error Exception in try action';
+        }
+    }
+}
