@@ -23,7 +23,7 @@ $(document).ready(function() {
             {   data: 'nama',   name: 'name'},
             {   data: 'kode',   name: 'code'},
             {   data: 'modify', name: 'updated_at', searchable: false},
-            {   data: null,     name: 'id', searchable: false,
+            {   data: null,     name: 'uuid', searchable: false,
                 render: function ( data, type, row ) {
                     var action_delete  = "deleteit('"+data.uuid+"','"+data.nama+"')";
                     return  '<button data-bind=\''+JSON.stringify(data)+'\' class="btn btn-outline-primary btn-sm edit"><i class="fa fa-paint-brush"></i></button> '+

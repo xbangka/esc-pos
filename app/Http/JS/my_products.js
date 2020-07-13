@@ -211,9 +211,14 @@ var app = new Vue({
 				)
                 .then(
                     response => {
-						this.div.showDetail.variations = response.data;
-						this.div.showDetail.loadingvariations = false;
-						this.getPriceRef(val);
+						if(this.IsJsonString('"'+response.data+'"')){
+							this.div.showDetail.variations = response.data;
+							this.div.showDetail.loadingvariations = false;
+							this.getPriceRef(val);
+						}else{
+							this.div.showDetail.variations = [];
+							this.div.showDetail.loadingvariations = false;
+						}
                     }
                 ).catch( function (error) {
 					this.div.showDetail.variations = [];
@@ -738,6 +743,14 @@ var app = new Vue({
         numThousans: function (x=0){
 			x = x.toString().replace('.', ',');
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        }
+		},
+		IsJsonString: function (str){
+			try {
+				JSON.parse(str);
+			} catch (e) {
+				return false;
+			}
+			return true;
+		}
 	}
 })

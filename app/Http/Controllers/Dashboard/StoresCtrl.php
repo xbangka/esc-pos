@@ -62,7 +62,7 @@ class StoresCtrl extends Controller
     public function getData(Datatables $datatables, Request $request)
     {
         try{
-            $key = $request->header('Accept-Dinamic-Key');
+            $key = $request->header('Accept-Dinamic-Key').'pp';
 
             if($request->session()->has('key_cross')) {
                 $key_cross = $request->session()->get('key_cross');
@@ -149,7 +149,7 @@ class StoresCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             if($request->_delete){
                 $store  = Stores::where('uuid', $uuid)->first();
@@ -222,7 +222,7 @@ class StoresCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $store = Stores::select('id')->with('users')->where('uuid', $uuid)->first();
             

@@ -44,6 +44,7 @@ class MyProductsCtrl extends Controller
             $param['appid']         = $appid;
             $param['csrf_token']    = csrf_token();
             $param['getBarcodeImage']= url('barcode-image');
+            $param['printBarcode']  = 'my.bluetoothprint.scheme://'.url('my-products/print-barcode');
             $param['getPriceRef']   = url('get-price-references');
             $param['getPriceVariations']= url('my-products/get-price-variations');
             $param['newData']       = url('my-products/new-data');
@@ -151,7 +152,7 @@ class MyProductsCtrl extends Controller
             }
 
             $_q = $request->input('_q');
-            $_hash = $request->header('_hash');
+            $_hash = $request->header('Host');
             
             $validator = app()->make('validator');
 
@@ -168,7 +169,7 @@ class MyProductsCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $code = $_q->code;
             $name = $_q->name;
@@ -258,7 +259,7 @@ class MyProductsCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $varians = $this->variations('uuid', $uuid); 
             return ($varians) ? $varians : response([])->header('Content-Type', 'application/json');
@@ -296,7 +297,7 @@ class MyProductsCtrl extends Controller
             $stts = isset($_q->stt) ? $_q->stt : false;
             if(!$uuid || !$stts) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             $uuid_hash = hash('sha256',$uuid);
-            if($uuid_hash!=$_hash) return 'sha256 invalid';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'sha256 invalid';
 
             $old    = Product_Prices::where('uuid', '=', $uuid)->first();
             if(!isset($old->id)) return 'Tidak diketahui !.';
@@ -347,7 +348,7 @@ class MyProductsCtrl extends Controller
             $stts = isset($_q->stt) ? $_q->stt : false;
             if(!$uuid || !$stts) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             $uuid_hash = hash('sha256',$uuid);
-            if($uuid_hash!=$_hash) return 'sha256 invalid';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'sha256 invalid';
             $old    = Discounts::where('uuid', '=', $uuid)->first();
             if(!isset($old->id)) return 'Tidak diketahui !.';
             $disc = Discounts::where('uuid', $uuid)->firstOrFail();
@@ -396,7 +397,7 @@ class MyProductsCtrl extends Controller
             $code = $_q->code;
             $code = ($code=='') ? false:$code;
             $code_hash = ($code) ? hash('sha256',$code):'';
-            if($code_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $code_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
 
 
@@ -485,7 +486,7 @@ class MyProductsCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';// dd($uuid_hash,$_hash,$_q);
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $unit = $_q->unit;
             $price = $_q->price;
@@ -558,7 +559,7 @@ class MyProductsCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $name   = $_q->name;
             $value  = $_q->value;

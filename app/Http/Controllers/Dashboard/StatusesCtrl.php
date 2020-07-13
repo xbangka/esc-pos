@@ -127,7 +127,7 @@ class StatusesCtrl extends Controller
             $uuid = $_q->uuid;
             $uuid = ($uuid=='') ? false:$uuid;
             $uuid_hash = ($uuid) ? hash('sha256',$uuid):'';
-            if($uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
+            if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             $uuid = substr($uuid,5);
             
             if($request->_delete){

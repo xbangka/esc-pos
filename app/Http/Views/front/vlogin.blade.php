@@ -32,7 +32,10 @@
                                             class       ="form-control"
                                         >
                                     </div>
-                                    <button class="mt-4 mb-5 btn btn-primary btn-lg btn-block" v-on:click="login">LOGIN</button>
+                                    <div v-if="loading" class="mt-4 mb-5 text-center">
+                                        <img src="{{asset('images/loading.gif')}}">
+                                    </div>
+                                    <button v-else class="mt-4 mb-5 btn btn-primary btn-lg btn-block" v-on:click="login">LOGIN</button>
                                 </div>
                             </div>
                         </div>

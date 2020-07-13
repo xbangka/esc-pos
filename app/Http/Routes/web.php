@@ -8,6 +8,7 @@ Route::get(sha1('file'.date('mjD')).'.js'   , 'Dashboard\JsViewCtrl@_index');
 Route::get(sha1('file'.date('mY')).'.css'   , 'Dashboard\CssViewCtrl@_index');
 Route::get('logout'                         , 'LogoutCtrl@_logout');
 Route::get('barcode-image'                  , 'HomeCtrl@get_barcode_image');
+Route::get('print-barcode'                  , 'HomeCtrl@printBarcode');
 Route::get('get-price-references'           , 'HomeCtrl@get_price_references');
 Route::get('/',  function (Request $request) {
     if($request->session()->has('udata')) {
@@ -133,6 +134,7 @@ Route::group(   ['namespace'    => 'Pos'],    function() {
     /// Kasir POS file  * * * * * * * * * * * * * * * * * * * * * * *  
     Route::post('checking-keyas', 'AppposCtrl@_checking_keyas');
     Route::post('get-products'  , 'AppposCtrl@_get_products');
+    Route::post('send-transaction' , 'AppposCtrl@_send_transaction');
     Route::post('update-data-local', 'AppposCtrl@_update_data_local');
     Route::get('{code}'         , 'AppposCtrl@_mystore');
 });

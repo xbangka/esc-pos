@@ -197,7 +197,7 @@ var app = new Vue({
 					html: _iconsvgwarning+'<h4 class="mt-4">Nama Pendek</h4><span class="mt-5">Nama Pendek harus di isi</span>'
 				});
 				return false;
-			}else if( newP.sname.length>=21 ){
+			}else if( this.sname.length>=21 ){
 				Swal.fire({
 					html: _iconsvgwarning+'<h4 class="mt-4">Nama Pendek</h4><span class="mt-5">Nama yang di ketik terlalu panjang,<br/>max:20 char</span>'
 				});

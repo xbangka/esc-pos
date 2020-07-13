@@ -75,6 +75,8 @@ class AppposCtrl extends Controller
             array_push($this->js,'app.js');
 
             $param['get_products']= url('get-products');
+            $param['send_transaction']= url('send-transaction');
+            $param['update_data_local']= url('update-data-local');
             $data['user']       = $request->session()->get('user');
 
             $data['filecss']    = view_css($this->css, $request);
@@ -200,6 +202,8 @@ class AppposCtrl extends Controller
 
         $code_toko  = $request->input('_toko');
 
+        $hash       = $request->header('Hash');
+
         if($request->session()->has('toko')) {
             $toko_sess = $request->session()->get('toko');
         }else{
@@ -212,6 +216,14 @@ class AppposCtrl extends Controller
         if($request->session()->has('key_cross')) {
 
             $key_cross = $request->session()->get('key_cross');
+
+            $key_hash = hash('sha256',$key_cross);
+            if(!config('app.debug') && $key_hash!=$hash){
+                $response['code']   = 403;
+                $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                $response['data']   = [];
+                return $response;
+            }
 
         }else{
             $response['code']   = 403;
@@ -278,9 +290,141 @@ class AppposCtrl extends Controller
 
         $code_toko  = $request->input('_toko');
 
+        $hash       = $request->header('Hash');
+
         if($request->session()->has('key_cross')) {
 
             $key_cross = $request->session()->get('key_cross');
+
+            $key_hash = hash('sha256',$key_cross);
+            if(!config('app.debug') && $key_hash!=$hash){
+                $response['code']   = 403;
+                $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                $response['data']   = [];
+                return $response;
+            }
+
+        }else{
+            $response['code']   = 403;
+            $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+            $response['data']   = [];
+            return $response;
+        }
+
+        $code_toko  = $Encryption->decrypt($code_toko, $key_cross);
+
+        $datax = [];
+        $arrcode = [];
+        foreach ($data as $row) {
+            $x = explode(',',$row);
+            $code = trim($x[0]);
+            $datax[$code] = $x[1] . ':00';
+            array_push($arrcode,$code);
+        }
+        
+        $products    = Products::whereIn('barcode',$arrcode)->get();
+
+        if(!$products){
+            $response['code']   = 401;
+            $response['message']= "tidak dapat update data";
+            $response['data']   = [];
+            return $response;
+        }
+
+        $product_output = [];
+        foreach ($products as $product) {
+            $name   = $product->full_name;
+            $alias  = $product->short_name;
+            $barcode= $product->barcode;
+            $updated= $product->updated_at;
+            $category   = isset($product->categories) ? $product->categories->name : $product->category_id;
+            $product_prices = isset($product->product_prices) ? $product->product_prices : array();
+            
+            $varians = [];
+            foreach ($product_prices as $row) {
+                if($row->status==1 && isset($row->stores) && $row->stores->code==$code_toko){
+                    $detail = (object)[];
+                    $detail->code           = $barcode;
+                    $detail->uuid           = $row->uuid;
+                    $detail->name           = $name;
+                    $detail->alias          = $alias;
+                    $detail->category       = $category;
+                    $detail->unit           = isset($row->retail_units) ? $row->retail_units->code : '';
+                    $detail->unit_name      = isset($row->retail_units) ? $row->retail_units->name : '';
+                    $detail->price          = (float)$row->price;
+                    $updated                = ($row->updated_at>$updated) ? $row->updated_at : $updated;
+                    $detail->discount       = $row->discounts;
+                    array_push($varians,$detail);
+                }
+            }
+            if(count($varians)>=1 && $datax[$barcode]<$updated) $product_output['x'.$barcode] = $varians;
+        }
+        
+        $response['code']   = 200;
+        $response['message']= 'OK';
+        $response['data']   = $product_output;
+        
+        return $response;
+    }
+
+    public function _send_transaction (Request $request)
+    {
+        $Encryption = new \Encryption();
+
+        $trx        = $request->input('_trx');
+
+        $cash       = $request->input('_cash');
+
+        $trxuniqid  = $request->input('_trxuniqid');
+
+        $code_toko  = $request->input('_toko');
+
+        $hash       = $request->header('Hash');
+
+        $hashCash   = $request->header('Cash');
+
+        $hashTrxUniqid = $request->header('Trxuniqid');
+
+        if($request->session()->has('key_cross')) {
+
+            $key_cross = $request->session()->get('key_cross');
+
+            $key_hash = hash('sha256',$key_cross);
+            if(!config('app.debug') && $key_hash!=$hash){
+                $response['code']   = 403;
+                $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                $response['data']   = [];
+                return $response;
+            }
+
+            $cash_hash = hash('sha256',$cash);
+            if(!config('app.debug') && $cash_hash!=$hashCash){
+                $response['code']   = 403;
+                $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                $response['data']   = [];
+                return $response;
+            }
+
+            $trxuniqid_hash = hash('sha256',$trxuniqid);
+            if(!config('app.debug') && $trxuniqid_hash!=$hashTrxUniqid){
+                $response['code']   = 403;
+                $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                $response['data']   = [];
+                return $response;
+            }
+
+            if($request->session()->has('trxuniqid')) {
+                $xtemptrxuniqid = $request->session()->get('trxuniqid');
+                if($xtemptrxuniqid==$trxuniqid){
+                    $response['code']   = 403;
+                    $response['message']= "Halaman telah kadaluarsa, silakan muat ulang";
+                    $response['data']   = [];
+                    return $response;
+                }
+            }
+
+            $request->session()->forget('trxuniqid');
+            $request->session()->put('trxuniqid',$trxuniqid);
 
         }else{
             $response['code']   = 403;

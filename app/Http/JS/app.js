@@ -6,6 +6,7 @@ var _daysname = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 var _monthsname = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 var _iconsvgloading = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite"/></rect></svg>';
 var _iconsvgwarning = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="80" height="80"><style type="text/css">* { fill: #ff5d00 }</style><path d="M19.64 16.36L11.53 2.3A1.85 1.85 0 0 0 10 1.21 1.85 1.85 0 0 0 8.48 2.3L.36 16.36C-.48 17.81.21 19 1.88 19h16.24c1.67 0 2.36-1.19 1.52-2.64zM11 16H9v-2h2zm0-4H9V6h2z"/></svg>';
+var encryption 	= new Encryption();
 
 var app = new Vue({
 	el: '.{{$appid}}',
@@ -68,6 +69,43 @@ var app = new Vue({
 		changedue: function (){
 			return this.cash - this.totaltrx;
 		},
+		changedue_composition: function (){
+			if(this.changedue>0){
+				var changedue = this.changedue;
+				var nominal = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100];
+				var dividen = 0;
+				var html = '';
+				var color = [];
+					color[100000] = ' text-danger';
+					color[50000] = ' text-primary';
+					color[20000] = ' text-success';
+					color[10000] = ' text-danger';
+					color[5000] = ' text-warning';
+					color[2000] = '';
+					color[1000] = '';
+					color[500] = '';
+					color[200] = '';
+					color[100] = '';
+				var i_count = 0;
+				for (let n = 0; n < 10; n++) {
+					dividen = nominal[n];
+					i_count = 0;
+					for (let i = 1; i <= 10; i++) {
+						if(changedue>=dividen){
+							changedue = changedue - dividen;
+						}else{
+							break;
+						}
+						i_count = i;
+					}
+					if(i_count>0){
+						html += '<p class="mb-0'+color[dividen]+'">'+this.numThousans(dividen)+' x '+i_count+'</p>';
+					}
+				}
+				return html;
+			}
+			return '';
+		},
 		beatheart: {
 			get: function (){
 				return this.datetimestuk;
@@ -106,7 +144,7 @@ var app = new Vue({
                     }
                 }
             });
-          
+        
 		},
 		btnCekProduct: function (){
 			var barcode = this.UPC;
@@ -114,7 +152,6 @@ var app = new Vue({
 		},
 		btnCariProduk: function (barcode){
 			if(barcode=='') return false;
-			var encryption 	= new Encryption();
 			
 			var barcode	    = barcode.trim();
 			var data 		= localStorage.getItem(this.thisBrowserHash+barcode) || false;
@@ -131,6 +168,7 @@ var app = new Vue({
 			}else if(navigator.onLine){
 				barcode	    	= encryption.encrypt(barcode, "{{$key_salt}}");
 				var code 		= encryption.encrypt("{{$code}}", "{{$key_salt}}");
+				var keyHash 	= CryptoJS.SHA256('{{$key_salt}}');
 				
 				Swal.fire({
 					html: _iconsvgloading+'<h3 class="mt-4">Mencari</h3>',
@@ -143,6 +181,11 @@ var app = new Vue({
 					_token: _token,
 					_UPC: barcode,
 					_toko: code
+				},
+				{
+					headers: {
+						Hash: keyHash.toString()
+					}
 				})
 				.then(
 					response => {
@@ -207,7 +250,7 @@ var app = new Vue({
 			}
 
 			if(source==='external' && n_data>=1){
-				var encryption 	= new Encryption();
+				
 				var barcode 	= data[0].code;
 				var code_toko 	= "{{$code}}";
 				var dataEncript = JSON.stringify(data);
@@ -345,6 +388,8 @@ var app = new Vue({
 			
 			if(x==='<'){
 				cash = cash.substr(0,cash.length-1);
+			}else if(x==='p'){
+				cash = this.totaltrx;
 			}else if(x==='10K'){
 				cash = 10000;
 			}else if(x==='20K'){
@@ -402,16 +447,86 @@ var app = new Vue({
 			hash = Math.abs(hash);
 			return hash.toString();
         },
-		printDiv: function (){
-			if(this.changedue>=0){
-				this.sendData();
-				window.print();
-			}
+		saveAndPrint: function (){
+			this.sendData();
 		},
-		sendData: function (){
-            var trx = this.detailtransaksi;
+		onlySave: function (){
+			this.sendData(1);
+		},
+		onlyPrint: function (){
+			this.sendData(2);
+		},
+		sendData: function (x){
+			if(this.tempuniqid==this.uniqid){
+				Swal.fire({
+					html: _iconsvgwarning+'<h2 class="mt-4">Sudah</h2><span class="mt-5">Sudah dilakukan transaksi, klik reset untuk memulai transaksi lainnya</span>'
+				});
+				return false;
+			}
+			if(this.changedue<0){
+				Swal.fire({
+					html: _iconsvgwarning+'<h2 class="mt-4">Kembalian Minus</h2><span class="mt-5">Tidak dapat menlanjutkan transaksi, jika angka kembalian minus</span>'
+				});
+				return false;
+			}
+			if(!navigator.onLine){
+				Swal.fire({
+					html: _iconsvgwarning+'<h2 class="mt-4">Offline</h2><span class="mt-5">Tidak dapat menlanjutkan transaksi, Internet network sedang Offline ?</span>'
+				});
+				return false;
+			}
+			Swal.fire({
+				html: _iconsvgloading+'<h3 class="mt-4">Processing</h3>',
+				showConfirmButton: false,
+				allowOutsideClick: false
+			});
+			var code 	= encryption.encrypt("{{$code}}", "{{$key_salt}}");
+			var keyHash	= CryptoJS.SHA256('{{$key_salt}}');
+            var trx 	= this.detailtransaksi;
+            var cash 	= this.cash;
+			var cashHash= CryptoJS.SHA256(cash);
 			this.frequentlyBarcodeHits(trx);
-			this.tempuniqid = this.uniqid;
+			this.tempuniqid = trxuniqid = this.uniqid;
+			var trxuniqidHash = CryptoJS.SHA256(trxuniqid);
+
+			axios
+			.post("{{$send_transaction}}", {
+				_token: _token,
+				_trx: trx,
+				_cash: cash,
+				_trxuniqid: trxuniqid,
+				_toko: code
+			},
+			{
+				headers: {
+					Hash: keyHash.toString(),
+					Cash: cashHash.toString(),
+					Trxuniqid: trxuniqidHash.toString()
+				}
+			})
+			.then(
+				response => {
+					var result = response.data;
+					alert(result);
+					console.log(result);
+
+					/*
+					if(result.code==200){
+						this.UPC = '';
+						this.fetchDataProduk(result.data,'external');
+					}else{
+						Swal.fire("Tidak Ditemukan",result.message,'error');
+					}
+					*/
+				}
+			).catch( function (error) {
+				Swal.fire(
+					'Kesalahan',
+					'Gagal mencari data',
+					'error'
+				);
+				console.log(error);
+			});
 		},
 		frequentlyBarcodeHits: function(trx){
 			var nx = trx.length;
@@ -536,13 +651,20 @@ var app = new Vue({
 									date = datafrequently[i].date;
 									databarcode.push(code+','+date.slice(0,-3));
 								}
-								var encryption 	= new Encryption();
+								
 								code = encryption.encrypt("{{$code}}", "{{$key_salt}}");
+								var keyHash 	= CryptoJS.SHA256('{{$key_salt}}');
+
 								axios
-								.post("update-data-local", {
+								.post("{{$update_data_local}}", {
 									_token: _token,
 									_data: databarcode,
 									_toko: code
+								},
+								{
+									headers: {
+										Hash: keyHash.toString()
+									}
 								})
 								.then(
 									response => {
@@ -550,7 +672,6 @@ var app = new Vue({
 
 										if(result.code==200){
 											var data 		= result.data;
-											var encryption 	= new Encryption();
 											var code_toko 	= "{{$code}}";
 											var objkey 		= Object.keys(data);
 											var n 			= objkey.length;

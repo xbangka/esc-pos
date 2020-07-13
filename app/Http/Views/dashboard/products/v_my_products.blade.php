@@ -86,9 +86,12 @@
                             <label class="col-8 col-form-label text-primary">: @{{div.showDetail.description}}</label>
                         </div>
                         <div class="offset-sm-4 col-sm-8 pt-3">
-                            <button @click="backToList()" class="btn btn-outline-secondary float-left mb-5">
+                            <button @click="backToList()" class="btn btn-outline-secondary mb-5">
                                 <i class="fa fa-angle-left"></i> KEMBALI
                             </button>
+                            <a v-if="div.showDetail.svgHTML!=''" class="btn btn-secondary mb-5" :href="'my.bluetoothprint.scheme://http://esp-pos.epizy.com/public/print-barcode?' + div.showDetail.code">
+                                <i class="fa fa-print"></i> PRINT BARCODE
+                            </a>
                         </div>
                     </div>
 

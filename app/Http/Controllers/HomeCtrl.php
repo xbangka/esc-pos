@@ -177,11 +177,11 @@ class HomeCtrl extends Controller
             }
         }
 
-        $existpng = \Storage::disk('local')->exists("barcodepng/$code.png");
+        $existpng = \Storage::disk('public')->exists("barcodepng/$code.png");
         if(!$existpng){
             try{
                 $png = \DNS1D::getBarcodePNG($code, "EAN13", 2.7, 80);
-                \Storage::disk('local')->put("barcodepng/$code.png", base64_decode($png));
+                \Storage::disk('public')->put("barcodepng/$code.png", base64_decode($png));
             }catch(\Exception $e){
                 //
             }
@@ -189,7 +189,7 @@ class HomeCtrl extends Controller
 
         if($type){
             if($type=='png' && $existpng){
-                return \Storage::disk('local')->download("barcodepng/$code.png");
+                return \Storage::disk('public')->download("barcodepng/$code.png");
             }
         }
 
@@ -206,6 +206,77 @@ class HomeCtrl extends Controller
             }catch(\Exception $e){
                 return '';
             }
+        }
+    }
+
+    public function printBarcode(Request $request)
+    {
+        try{
+            $responses = [];
+
+            $obj0 = (object)[];
+            $obj1 = (object)[];
+            $obj2 = (object)[];
+            $obj3 = (object)[];
+            $obj4 = (object)[];
+            $obj5 = (object)[];
+            $obj6 = (object)[];
+            //sending text entry	
+            $obj0->type 	= 0;//text
+            $obj0->content 	= 'KUNIYATI MART';//any string	
+            $obj0->bold 	= 1;//0 if no, 1 if yes
+            $obj0->align 	= 1;//0 if left, 1 if center, 2 if right
+            $obj0->format 	= 0;//0 if normal, 1 if double Height, 2 if double Height + Width, 3 if double Width, 4 if small
+            array_push($responses,$obj0);
+
+            // $obj1->type 	= 0;
+            // $obj1->content 	= '------------------------------------------';
+            // $obj1->bold 	= 0;
+            // $obj1->align 	= 2;
+            // $obj1->format 	= 4;
+            // array_push($responses,$obj1);
+
+            // $obj2->type 	= 0;
+            // $obj2->content 	= '07.05.20.10:55                        YENI';
+            // $obj2->bold 	= 0;
+            // $obj2->align 	= 2;
+            // $obj2->format 	= 4;
+            // array_push($responses,$obj2);
+
+            // $obj3->type 	= 0;
+            // $obj3->content 	= '------------------------------------------';
+            // $obj3->bold 	= 0;
+            // $obj3->align 	= 1;
+            // $obj3->format 	= 4;
+            // array_push($responses,$obj3);
+
+            // $obj4->type 	= 0;
+            // $obj4->content 	= "MINYAK GOSOK CAP TAWON 90 ML              <br>    1 PCS                           36.500";
+            // $obj4->bold 	= 0;
+            // $obj4->align 	= 2;
+            // $obj4->format 	= 4;
+            // array_push($responses,$obj4);
+
+            // $obj5->type 	= 0;
+            // $obj5->content 	= "                 ----------------------<br>";
+            // $obj5->bold 	= 0;
+            // $obj5->align 	= 2;
+            // $obj5->format 	= 4;
+            // array_push($responses,$obj5);
+
+            // $obj6->type 	= 0;
+            // $obj6->content 	= " <br> ";
+            // $obj6->bold 	= 0;
+            // $obj6->align 	= 0;
+            // array_push($responses,$obj6);
+            
+            header("Content-Type: text/plain");
+            header("access-control-allow-origin: *");
+            header("vary: Accept-Encoding");
+            echo json_encode($responses,JSON_FORCE_OBJECT);
+            exit;
+        }catch(\Exception $e){
+            return (config('app.debug')) ? $e.'' /*$e->getMessage()*/ : 'Error Exception in try action';
         }
     }
 

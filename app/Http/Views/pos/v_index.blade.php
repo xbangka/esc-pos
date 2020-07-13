@@ -169,7 +169,7 @@
                     <div class="modal-content">
                         <div class="modal-body">
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-5">
                                     <ul class="list-group">
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             TAGIHAN
@@ -184,8 +184,11 @@
                                             <h4 style="font-family:'courier new';font-size:20pt" :class="(changedue<0) ? 'blink-me text-danger mb-0' : 'mb-0'"><strong>@{{numThousans(changedue)}}</strong></h4>
                                         </li>
                                     </ul>
+                                    <div class="mt-3">
+                                        <i class="text-muted text-right" v-html="changedue_composition"></i>
+                                    </div>
                                 </div>
-                                <div class="col-6 pl-0">
+                                <div class="col-7 pl-0">
                                     <div class="card p-4">
                                         <div class="text-center row">
                                             <div class="col-3 mb-4">
@@ -199,7 +202,7 @@
                                             </div>
                                             <div class="col-3 mb-4">
                                                 <div class="dropdown">
-                                                    <button onclick="showdropdown()" class="dropbtn btn btn-warning btn-lg btn-block">Rp</button>
+                                                    <button onclick="showdropdown()" class="dropbtn btn btn-warning btn-lg btn-block">RP</button>
                                                     <div id="myDropdown" class="dropdown-content">
                                                         <a href="javascript:;" @click="btnkeypadnum('10K')">10.000</a>
                                                         <a href="javascript:;" @click="btnkeypadnum('20K')">20.000</a>
@@ -212,7 +215,7 @@
                                                 <button type="button" class="btn btn-outline-primary btn-lg btn-block" @click="btnkeypadnum(4)"><b>4</b></button>
                                             </div>
                                             <div class="col-3 mb-4">
-                                                <button type="button" class="btn btn-outline-primary btn-lg btn-block" @click="btnkeypadnum(5)"><b>5</b></button>
+                                                <button type="button" class="btn btn-info btn-lg btn-block" @click="btnkeypadnum(5)"><b>5</b></button>
                                             </div>
                                             <div class="col-3 mb-4">
                                                 <button type="button" class="btn btn-outline-primary btn-lg btn-block" @click="btnkeypadnum(6)"><b>6</b></button>
@@ -230,7 +233,7 @@
                                                 <button type="button" class="btn btn-outline-primary btn-lg btn-block" @click="btnkeypadnum(9)"><b>9</b></button>
                                             </div>
                                             <div class="col-3 mb-4">
-                                                &nbsp;
+                                                <button type="button" class="btn btn-success btn-lg btn-block" @click="btnkeypadnum('p')"><b>PAS</b></button>
                                             </div>
                                             <div class="col-3 mb-4">
                                                 <button type="button" class="btn btn-danger btn-lg btn-block" @click="btnkeypadnum('<')"><</button>
@@ -247,13 +250,13 @@
                             </div>
                         </div>
                         <div class="modal-footer" style="justify-content:space-between">
-                            <button v-if="tempuniqid!==uniqid" type="button" class="btn btn-dark btn-sm" :data-dismiss="(changedue>=0) ? 'modal':''">HANYA SIMPAN</button>
+                            <button v-if="tempuniqid!==uniqid" type="button" class="btn btn-dark btn-sm" :data-dismiss="(changedue>=0) ? 'modal':''" @click="onlySave()">HANYA SIMPAN</button>
                             <button v-if="tempuniqid===uniqid" type="button" class="btn btn-dark btn-sm" disabled>HANYA SIMPAN</button>
 
-                            <button v-if="tempuniqid===uniqid" type="button" class="btn btn-dark btn-sm" :data-dismiss="(changedue>=0) ? 'modal':''" @click="printDiv()">HANYA CETAK</button>
+                            <button v-if="tempuniqid===uniqid" type="button" class="btn btn-dark btn-sm" :data-dismiss="(changedue>=0) ? 'modal':''" @click="onlyPrint()">HANYA CETAK</button>
                             <button v-if="tempuniqid!==uniqid" type="button" class="btn btn-dark btn-sm" disabled>HANYA CETAK</button>
 
-                            <button v-if="tempuniqid!==uniqid" type="button" class="btn btn-success" :data-dismiss="(changedue>=0) ? 'modal':''" @click="printDiv()">SIMPAN & CETAK</button>
+                            <button v-if="tempuniqid!==uniqid" type="button" class="btn btn-success" :data-dismiss="(changedue>=0) ? 'modal':''" @click="saveAndPrint()">SIMPAN & CETAK</button>
                             <button v-if="tempuniqid===uniqid" type="button" class="btn btn-success" disabled>SIMPAN & CETAK</button>
                         </div>
                     </div>
