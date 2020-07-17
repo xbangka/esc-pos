@@ -212,71 +212,79 @@ class HomeCtrl extends Controller
     public function printBarcode(Request $request)
     {
         try{
+            $code = $request->input('code',false);
+
+            if(!$code) return;
+
+            $token = $this->_get_token_barcode_generator();
+
+            if(!$token) return;
+
+            $product = Products::where('barcode', '=', $code)->first();
+            if(!$product) return;
+
+            if( $request->session()->has('udata') ) {
+                $udata = $request->session()->get('udata');
+                if(!isset($udata->store_code)) return;
+                $store_code = $udata->store_code;
+            }else{
+                return;
+            }
+
             $responses = [];
 
             $obj0 = (object)[];
             $obj1 = (object)[];
             $obj2 = (object)[];
             $obj3 = (object)[];
-            $obj4 = (object)[];
-            $obj5 = (object)[];
-            $obj6 = (object)[];
-            //sending text entry	
-            $obj0->type 	= 0;//text
-            $obj0->content 	= 'KUNIYATI MART';//any string	
-            $obj0->bold 	= 1;//0 if no, 1 if yes
-            $obj0->align 	= 1;//0 if left, 1 if center, 2 if right
-            $obj0->format 	= 0;//0 if normal, 1 if double Height, 2 if double Height + Width, 3 if double Width, 4 if small
+
+            $obj0->type 	= 0;
+            $obj0->content 	= $product->full_name;
+            $obj0->bold 	= 0;
+            $obj0->align 	= 0;
+            $obj0->format 	= 0;
             array_push($responses,$obj0);
 
-            // $obj1->type 	= 0;
-            // $obj1->content 	= '------------------------------------------';
-            // $obj1->bold 	= 0;
-            // $obj1->align 	= 2;
-            // $obj1->format 	= 4;
-            // array_push($responses,$obj1);
+            $obj1->type 	= 1;
+            $obj1->path 	= 'https://www.terryburton.co.uk/barcodewriter/generator/imagegen?action=png&encoder=ean13&data='.$code.'&options=includetext%20guardwhitespace&scale_x=3.2&scale_y=2.4&rotate=0&csrf_token='.$token;
+            $obj1->align 	= 0;
+            array_push($responses,$obj1);
 
-            // $obj2->type 	= 0;
-            // $obj2->content 	= '07.05.20.10:55                        YENI';
-            // $obj2->bold 	= 0;
-            // $obj2->align 	= 2;
-            // $obj2->format 	= 4;
-            // array_push($responses,$obj2);
+            if(count($product->product_prices)>=1){
+                $obj2->type 	= 0;
+                $obj2->content 	= '';
+                $obj2->bold 	= 0;
+                $obj2->align 	= 0;
+                array_push($responses,$obj2);
 
-            // $obj3->type 	= 0;
-            // $obj3->content 	= '------------------------------------------';
-            // $obj3->bold 	= 0;
-            // $obj3->align 	= 1;
-            // $obj3->format 	= 4;
-            // array_push($responses,$obj3);
+                foreach ($product->product_prices as $row) {
+                    $obj_ = (object)[];
+                    $obj_->type 	= 0;
+                    $obj_->content 	= 'Rp. '.format_number($row->price);
+                    $obj_->bold 	= 0;
+                    $obj_->align 	= 2;
+                    $obj_->format 	= 3;
+                    array_push($responses,$obj_);
+                }
+            }
 
-            // $obj4->type 	= 0;
-            // $obj4->content 	= "MINYAK GOSOK CAP TAWON 90 ML              <br>    1 PCS                           36.500";
-            // $obj4->bold 	= 0;
-            // $obj4->align 	= 2;
-            // $obj4->format 	= 4;
-            // array_push($responses,$obj4);
-
-            // $obj5->type 	= 0;
-            // $obj5->content 	= "                 ----------------------<br>";
-            // $obj5->bold 	= 0;
-            // $obj5->align 	= 2;
-            // $obj5->format 	= 4;
-            // array_push($responses,$obj5);
-
-            // $obj6->type 	= 0;
-            // $obj6->content 	= " <br> ";
-            // $obj6->bold 	= 0;
-            // $obj6->align 	= 0;
-            // array_push($responses,$obj6);
+            $obj3->type 	= 0;
+            $obj3->content 	= ' <br /> ';
+            $obj3->bold 	= 0;
+            $obj3->align 	= 0;
+            array_push($responses,$obj3);
             
-            header("Content-Type: text/plain");
-            header("access-control-allow-origin: *");
-            header("vary: Accept-Encoding");
-            echo json_encode($responses,JSON_FORCE_OBJECT);
-            exit;
+            $json_obj = json_encode($responses,JSON_FORCE_OBJECT);
+            $json_obj = str_replace('\/','/',$json_obj);
+            
+            $encryption = new \Encryption();
+	
+            $string = $encryption->encrypt($json_obj, 'esc-pos');
+
+            return $string;
+
         }catch(\Exception $e){
-            return (config('app.debug')) ? $e.'' /*$e->getMessage()*/ : 'Error Exception in try action';
+            return (config('app.debug')) ? /*$e.''*/ $e->getMessage() : 'Error Exception in try action';
         }
     }
 
@@ -571,6 +579,29 @@ class HomeCtrl extends Controller
             $responsesproduct->source = 'mosritel.com';
             $responsesproduct->price = (float)$price;
             return $responsesproduct;
+        }catch(\Exception $e){
+            return false;
+        }
+    }
+
+    private function _get_token_barcode_generator()
+    {
+        try{
+            $xurl   = 'https://www.terryburton.co.uk/barcodewriter/generator/';
+            $oapXML = '';
+            $result = getcurl($xurl, $oapXML);
+
+            if(!$result) return false;
+
+            $input = between($result, 'name="csrftoken"', '/>');
+            if($input=='' || $input=='NULL') return false;
+
+            $token = between($input, 'value="', '" ');
+            if($token=='' || $token=='NULL') return false;
+
+            $token = str_replace(' ','%20',$token);
+            $token = trim($token);
+            return $token;
         }catch(\Exception $e){
             return false;
         }

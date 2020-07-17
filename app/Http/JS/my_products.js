@@ -707,6 +707,7 @@ var app = new Vue({
 			}
 		},
 		getPriceRef: function (code){
+			this.div.showDetail.priceReferences = [{source:_iconsvgloading,price:''}]
 			axios
 			.get("{{$getPriceRef}}?"+code)
 			.then(
@@ -718,6 +719,24 @@ var app = new Vue({
 				console.log(error);
 			});
 		},
+		printBarcode: function (){
+			Swal.fire({
+				html: _iconsvgloading+'<h3 class="mt-4">Processing</h3>',
+				showConfirmButton: false,
+				allowOutsideClick: false
+			});
+			axios
+			.get("{{$printBarcode}}?code="+this.div.showDetail.code)
+			.then(
+				response => {
+					location.href = "my.bluetoothprint.scheme://http://0.0.0.0:8080/?q="+response.data;
+					Swal.close();
+				}
+			).catch( function (error) {
+				Swal.fire('Failed','Gagal ganti status data','error')
+				console.log(error);
+			});
+        },
 		getIdUnit: function (code){
 			if(this.div.showDetail.formShow.display==true){
 				var units = this.units;

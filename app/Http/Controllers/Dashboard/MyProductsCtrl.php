@@ -44,7 +44,7 @@ class MyProductsCtrl extends Controller
             $param['appid']         = $appid;
             $param['csrf_token']    = csrf_token();
             $param['getBarcodeImage']= url('barcode-image');
-            $param['printBarcode']  = 'my.bluetoothprint.scheme://'.url('my-products/print-barcode');
+            $param['printBarcode']  = url('print-barcode');
             $param['getPriceRef']   = url('get-price-references');
             $param['getPriceVariations']= url('my-products/get-price-variations');
             $param['newData']       = url('my-products/new-data');

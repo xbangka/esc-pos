@@ -89,9 +89,9 @@
                             <button @click="backToList()" class="btn btn-outline-secondary mb-5">
                                 <i class="fa fa-angle-left"></i> KEMBALI
                             </button>
-                            <a v-if="div.showDetail.svgHTML!=''" class="btn btn-secondary mb-5" :href="'my.bluetoothprint.scheme://http://esp-pos.epizy.com/public/print-barcode?' + div.showDetail.code">
+                            <button v-if="div.showDetail.svgHTML!=''" class="btn btn-secondary mb-5" @click="printBarcode()">
                                 <i class="fa fa-print"></i> PRINT BARCODE
-                            </a>
+                            </button>
                         </div>
                     </div>
 
@@ -319,7 +319,7 @@
                         <table class="mb-0 table table-bordered">
                             <tbody>
                                 <tr v-for="pr in div.showDetail.priceReferences">
-                                    <th class="text-right"><b>@{{pr.source}}</b></th>
+                                    <th class="text-right"><b v-html="pr.source"></b></th>
                                     <td>Rp.@{{numThousans(pr.price)}}</td>
                                 </tr>
                             </tbody>

@@ -19,6 +19,7 @@ var app = new Vue({
         cash: 0,
         datetimestuk: '',
         timenow: '',
+        pagePayData: false,
 		readyscan: true
 	},
 	computed:{
@@ -433,6 +434,7 @@ var app = new Vue({
 			this.responses 			= [{name:'',code:'',category:'',discountHits:[]}];
 			this.cash 				= 0;
 			this.uniqid 			= Math.random().toString(36).substring(2,10);
+			document.getElementById("txtcode").focus();
         },
         hashCode: function (str){
 			var hash = 0;
@@ -447,6 +449,9 @@ var app = new Vue({
 			hash = Math.abs(hash);
 			return hash.toString();
         },
+		pagePay: function (param){
+			return this.pagePayData=param;
+		},
 		saveAndPrint: function (){
 			this.sendData();
 		},
@@ -456,7 +461,7 @@ var app = new Vue({
 		onlyPrint: function (){
 			this.sendData(2);
 		},
-		sendData: function (x){
+		sendData: function (action=0){
 			if(this.tempuniqid==this.uniqid){
 				Swal.fire({
 					html: _iconsvgwarning+'<h2 class="mt-4">Sudah</h2><span class="mt-5">Sudah dilakukan transaksi, klik reset untuk memulai transaksi lainnya</span>'
@@ -480,44 +485,32 @@ var app = new Vue({
 				showConfirmButton: false,
 				allowOutsideClick: false
 			});
-			var code 	= encryption.encrypt("{{$code}}", "{{$key_salt}}");
-			var keyHash	= CryptoJS.SHA256('{{$key_salt}}');
-            var trx 	= this.detailtransaksi;
-            var cash 	= this.cash;
-			var cashHash= CryptoJS.SHA256(cash);
-			this.frequentlyBarcodeHits(trx);
-			this.tempuniqid = trxuniqid = this.uniqid;
-			var trxuniqidHash = CryptoJS.SHA256(trxuniqid);
+			var trx = {
+						items : this.detailtransaksi,
+						total : this.totaltrx,
+						cash : this.cash,
+						changedue : this.changedue,
+						toko: "{{$code}}",
+						action: action,
+						trxuniqid: this.uniqid
+					};
+				trx = JSON.stringify(trx);
+				trx = encryption.encrypt(trx, "{{$key_salt}}");
+
+			this.frequentlyBarcodeHits(this.detailtransaksi);
 
 			axios
 			.post("{{$send_transaction}}", {
 				_token: _token,
-				_trx: trx,
-				_cash: cash,
-				_trxuniqid: trxuniqid,
-				_toko: code
-			},
-			{
-				headers: {
-					Hash: keyHash.toString(),
-					Cash: cashHash.toString(),
-					Trxuniqid: trxuniqidHash.toString()
-				}
+				_trx: trx
 			})
 			.then(
 				response => {
 					var result = response.data;
-					alert(result);
-					console.log(result);
-
-					/*
-					if(result.code==200){
-						this.UPC = '';
-						this.fetchDataProduk(result.data,'external');
-					}else{
-						Swal.fire("Tidak Ditemukan",result.message,'error');
+					if(action!=1){
+						Swal.close();
+						location.href = "my.bluetoothprint.scheme://http://0.0.0.0:8080/?q="+result;
 					}
-					*/
 				}
 			).catch( function (error) {
 				Swal.fire(

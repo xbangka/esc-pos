@@ -127,10 +127,10 @@
                 <div class="row">
                     <div class="col-md-12 mt-1 text-center">
                         <a href="javascript:;" @click="btnUpdateDataLocal()">
-                           Update <span v-html="numThousans(htmlCountDataLocal())"></span> Data Lokal 
+                            Update <span v-html="numThousans(htmlCountDataLocal())"></span> Data Lokal 
                         </a>&nbsp; | &nbsp;
                         <a href="javascript:;" @click="btnLogout()">
-                           Logout
+                            Logout
                         </a>
                     </div>
                 </div>
