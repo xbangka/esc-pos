@@ -258,7 +258,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-                    )
+                    );
                     this.loading = false;
 					console.log(error);
 				});
@@ -304,7 +304,7 @@ var app = new Vue({
 						'Failed',
 						'Pengambilan data gagal',
 						'error'
-                    )
+                    );
 					console.log(error);
 				});
         },
@@ -348,7 +348,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-                    )
+                    );
 					console.log(error);
 				});
         }

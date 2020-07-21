@@ -137,7 +137,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('my-stores')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-cog fa-3x icon-gradient bg-malibu-beach mb-3"></i>
+                    <i class="fa fa-cog fa-3x icon-gradient bg-malibu-beach mb-1"></i>
                     <span>Config</span>
                 </div>
             </a>
@@ -145,7 +145,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('my-products')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-tags fa-3x icon-gradient bg-ripe-malin mb-3"></i>
+                    <i class="fa fa-tags fa-3x icon-gradient bg-ripe-malin mb-1"></i>
                     <span>Produk</span>
                 </div>
             </a>
@@ -153,7 +153,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('#')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-list-alt fa-3x icon-gradient bg-grow-early mb-3"></i>
+                    <i class="fa fa-list-alt fa-3x icon-gradient bg-grow-early mb-1"></i>
                     <span>Transaksi</span>
                 </div>
             </a>
@@ -161,7 +161,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('my-employes')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-users fa-3x icon-gradient bg-plum-plate mb-3"></i>
+                    <i class="fa fa-users fa-3x icon-gradient bg-plum-plate mb-1"></i>
                     <span>Pengguna</span>
                 </div>
             </a>
@@ -169,7 +169,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('general-histories')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-history fa-3x icon-gradient bg-love-kiss mb-3"></i>
+                    <i class="fa fa-history fa-3x icon-gradient bg-love-kiss mb-1"></i>
                     <span>Histori</span>
                 </div>
             </a>
@@ -177,7 +177,7 @@
         <div class="col-4 col-md-2 mb-3">
             <a href="{{url('reset-password')}}" class="card-link">
                 <div class="text-center card card-body pl-1 pr-1">
-                    <i class="fa fa-unlock-alt fa-3x icon-gradient bg-mixed-hopes mb-3"></i>
+                    <i class="fa fa-unlock-alt fa-3x icon-gradient bg-mixed-hopes mb-1"></i>
                     <span>Reset Pass</span>
                 </div>
             </a>

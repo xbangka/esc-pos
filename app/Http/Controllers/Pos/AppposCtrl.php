@@ -40,7 +40,11 @@ class AppposCtrl extends Controller
             $code = $request->code;
             $stores = Stores::where(['code' => $code, 'status' => 1])->first();
 
-            if(!$stores) return abort(404);
+            if(!$stores) {
+                $response['code']   = 404;
+                $response['message']= "Not Found";
+                return $response;
+            }
 
             // dd($stores);
             $stores->name           = str_Decode($stores->name);
@@ -521,9 +525,9 @@ class AppposCtrl extends Controller
 
                 $encryption = new \Encryption();
 	
-                $string = $encryption->encrypt($json_obj, 'esc-pos');
+                $json_obj = $encryption->encrypt($json_obj, 'esc-pos');
 
-                return $string;
+                return $json_obj;
             }
             return ;
         }catch(\Exception $e){
@@ -630,7 +634,7 @@ class AppposCtrl extends Controller
                 $product = $row->name.$spasi.'<br />';
 
                 // Baris Harga  =================
-                $quantity   = '    '.$row->qty . ' ' . $row->unit_name;
+                $quantity   = '    '.$row->qty . ' ' . $row->unit_name . ' x '. format_number($row->price);
                 $price      = $row->qty*$row->price;
                 $priceFormat= format_number($price);
                 $subTotal  += $price;
@@ -692,16 +696,18 @@ class AppposCtrl extends Controller
                 $sisa   = 11 - $len;
                 $spasi  = '';
                 for ($i=0; $i < $sisa; $i++) $spasi .= ' ';
-                $cash   = $spasi.$cash.'<br />';
+                $cash   = $spasi.$cash;
                 $bottomPrice .= '                    TUNAI     :'.$cash;
 
-                $changedue  = format_number($changedue);
-                $len        = strlen($changedue);
-                $sisa       = 11 - $len;
-                $spasi      = '';
-                for ($i=0; $i < $sisa; $i++) $spasi .= ' ';
-                $changedue   = $spasi.$changedue;
-                $bottomPrice .= '                    KEMBALI   :'.$changedue;
+                if($changedue!=0){
+                    $changedue  = format_number($changedue);
+                    $len        = strlen($changedue);
+                    $sisa       = 11 - $len;
+                    $spasi      = '';
+                    for ($i=0; $i < $sisa; $i++) $spasi .= ' ';
+                    $changedue   = $spasi.$changedue;
+                    $bottomPrice .= '<br />                    KEMBALI   :'.$changedue;
+                }
 
             $obj5->type 	= 0;
             $obj5->content 	= $bottomPrice;

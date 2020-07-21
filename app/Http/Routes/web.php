@@ -130,6 +130,10 @@ Route::group(   ['namespace'    => 'Pos'],    function() {
 
     Route::get('gen-update'     , 'TestCtrl@_barcode_view');
     Route::get('u-product-id'   , 'TestCtrl@_update_product_id');
+
+    Route::get('get-similiar'   , 'TestCtrl@_get_similiar');
+    Route::get('get-handayani'  , 'TestCtrl@_get_handayani');
+    Route::post('save-new-pro'  , 'TestCtrl@_save_new_handayani');
     
     /// Kasir POS file  * * * * * * * * * * * * * * * * * * * * * * *  
     Route::post('checking-keyas', 'AppposCtrl@_checking_keyas');

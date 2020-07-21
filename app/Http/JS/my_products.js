@@ -30,9 +30,10 @@ $(document).ready(function() {
 							confirmButtonText: 'Ya, tambahkan !'
 						}).then((result) => {
 							if(result.value){
-								app.div.showTable = false,
-								app.div.showDetail.display = false,
-								app.div.showNewProduct.display = true
+								app.div.showNewProduct.code = code_val;
+								app.div.showTable = false;
+								app.div.showDetail.display = false;
+								app.div.showNewProduct.display = true;
 							}
 						});
 					}
@@ -67,9 +68,9 @@ $(document).ready(function() {
 	});
 	
 	$('#dataTable tbody').on('click', '.showme', function () { 
-		app.div.showTable = false,
-		app.div.showDetail.display = true,
-		app.div.showNewProduct.display = false
+		app.div.showTable = false;
+		app.div.showDetail.display = true;
+		app.div.showNewProduct.display = false;
 		var data = dataTable.row( $(this).parents('tr') ).data();
 		var uuid ;
 		var code ;
@@ -391,9 +392,9 @@ var app = new Vue({
 					response => {
 						var result = response.data;
 						if(result.indexOf('*OK*')!='-1'){
-							this.div.showTable = false,
-							this.div.showDetail.display = true,
-							this.div.showNewProduct.display = false
+							this.div.showTable = false;
+							this.div.showDetail.display = true;
+							this.div.showNewProduct.display = false;
 							var res = result.split("*OK*");
 							this.div.showDetail.uuid = res[1];
 							this.div.showDetail.code = newP.code;
@@ -414,7 +415,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-                    )
+                    );
                     this.loading = false;
 					console.log(error);
 				});
@@ -470,7 +471,7 @@ var app = new Vue({
 					}
 				).catch( function (error) {
 					detail.variations = [];
-					Swal.fire('Failed','Gagal mengirim data','error')
+					Swal.fire('Failed','Gagal mengirim data','error');
                     formPrice.loading = false;
 					console.log(error);
 				});
@@ -504,7 +505,7 @@ var app = new Vue({
 				}
 			).catch( function (error) {
 				this.div.showDetail.variations = [];
-				Swal.fire('Failed','Gagal ganti status data','error')
+				Swal.fire('Failed','Gagal ganti status data','error');
 				console.log(error);
 			});
         },
@@ -546,7 +547,7 @@ var app = new Vue({
 				}
 			).catch( function (error) {
 				this.div.showDetail.variations = [];
-				Swal.fire('Failed','Gagal ganti status data','error')
+				Swal.fire('Failed','Gagal ganti status data','error');
 				console.log(error);
 			});
         },
@@ -667,7 +668,7 @@ var app = new Vue({
 						}
 					).catch( function (error) {
 						this.div.showDetail.variations = [];
-						Swal.fire('Failed','Gagal mengirim data','error')
+						Swal.fire('Failed','Gagal mengirim data','error');
 						formPrice.loading = false;
 						console.log(error);
 					});
@@ -707,7 +708,7 @@ var app = new Vue({
 			}
 		},
 		getPriceRef: function (code){
-			this.div.showDetail.priceReferences = [{source:_iconsvgloading,price:''}]
+			this.div.showDetail.priceReferences = [{source:_iconsvgloading,price:''}];
 			axios
 			.get("{{$getPriceRef}}?"+code)
 			.then(
@@ -733,7 +734,7 @@ var app = new Vue({
 					Swal.close();
 				}
 			).catch( function (error) {
-				Swal.fire('Failed','Gagal ganti status data','error')
+				Swal.fire('Failed','Gagal ganti status data','error');
 				console.log(error);
 			});
         },
@@ -750,7 +751,7 @@ var app = new Vue({
 			return '';
         },
 		formatDateIna: function (date){
-			var bln = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']
+			var bln = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 			var time = date.substr(11,5);
 			var date = date.substr(0,10);
 			var res = date.split('-');

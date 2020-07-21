@@ -239,7 +239,7 @@ var app = new Vue({
 								'Berhasil',
 								'Data berhasil di ' +((app.uuidedit=='')?'simpan':'update'),
 								'success'
-                            )
+                            );
                             dataTable.ajax.reload( null, false );
 						}else{
 							Swal.fire({
@@ -253,7 +253,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-                    )
+                    );
                     this.loading = false;
 					console.log(error);
 				});
@@ -298,7 +298,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-                    )
+                    );
 					console.log(error);
 				});
         }

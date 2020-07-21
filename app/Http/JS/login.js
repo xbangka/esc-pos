@@ -73,7 +73,7 @@ var app = new Vue({
 								'Berhasil',
 								'Anda dipersilakan masuk ke dashboard',
 								'success'
-							)
+							);
 							window.location.href = "{{$dashboard}}";
 						}else{
 							Swal.fire({
@@ -87,7 +87,7 @@ var app = new Vue({
 						'Failed',
 						'Gagal mengirim data',
 						'error'
-					)
+					);
 					console.log(error);
 				});
 		}

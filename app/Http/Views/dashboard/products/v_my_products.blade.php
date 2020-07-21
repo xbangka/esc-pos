@@ -273,11 +273,17 @@
                             <div class="col-sm-8">
                                 <input id="a2" type="text" class="form-control" v-model="div.showNewProduct.name">
                             </div>
+                            <div class="col-12 offset-sm-4 col-sm-8">
+                                <small class="text-danger" v-html="40 - div.showNewProduct.name.length"></small>
+                            </div>
                         </div>
                         <div class="position-relative row form-group">
                             <label for="a3" class="col-sm-4 col-form-label">Nama 20char</label>
                             <div class="col-sm-8">
                                 <input id="a3" type="text" class="form-control" v-model="div.showNewProduct.sname">
+                            </div>
+                            <div class="col-12 offset-sm-4 col-sm-8">
+                                <small class="text-danger" v-html="(20 - div.showNewProduct.sname.length)>=0?(20 - div.showNewProduct.sname.length):0"></small>
                             </div>
                         </div>
 

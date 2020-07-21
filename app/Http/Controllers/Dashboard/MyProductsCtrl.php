@@ -172,7 +172,7 @@ class MyProductsCtrl extends Controller
             if(!config('app.debug') && $uuid_hash!=$_hash) return 'Perhatikan, Inputan perlu di isi dengan benar !.';
             
             $code = $_q->code;
-            $name = $_q->name;
+            $name = substr($_q->name,0,40);
             $snme = substr($_q->snme,0,20);
             $cate = $_q->cate;
             $desc = $_q->desc;

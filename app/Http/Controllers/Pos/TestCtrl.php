@@ -360,5 +360,123 @@ class TestCtrl extends Controller
 
         return ($start+200);
     }
+
+
+    public function _get_similiar(Request $request)
+    {
+        $key_cross = '_'.uniqid();
+        $request->session()->forget('key_cross');
+        $request->session()->put('key_cross',$key_cross);
+
+        $appid  = substr(date('D'),0,1).sha1( uniqid() );
+
+        $param['appid']         = $appid;
+        $param['get_handayani'] = url('get-handayani');
+        $param['save_product']  = url('save-new-pro');
+        $param['csrf_token']    = csrf_token();
+        $param['key_salt']      = $key_cross;
+
+        $version = config('app.env')=='local' ? '_dev' : '';
+        $js = array(
+                    'axios.min.js',
+                    'vue'.$version.'.js',
+                    'getsimiliar.js');
+        $css = array('bootstrap.min.css');
+                    
+        $data['filecss']    = view_css($css, $request);
+        $data['filejs']     = view_js($js, $param, $request);
+        $data['app']        = $appid;
+
+        return view('pos.v_similiar',$data);
+    }
+    
+    public function _get_handayani(Request $request)
+    {
+        try{
+            $word   = $request->input('q','');
+            $xurl   = 'http://harga.kpri-handayani.com/pos_item_table.php?q='.$word;
+            // $xurl = 'http://127.0.0.1/laravel7/esc_pos/public/r.html';
+            $header = [];
+            array_push($header, 'Host: harga.kpri-handayani.com');
+            array_push($header, 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0');
+            array_push($header, 'Origin: http://harga.kpri-handayani.com');
+            array_push($header, 'Connection: keep-alive');
+            array_push($header, 'Referer: http://harga.kpri-handayani.com/');
+            array_push($header, 'Cookie: TOKO=9qbms6kfu2fjq07s2sja1vavc7');
+            $result = basiccurl($xurl, '',$header);
+
+            if(!$result) return false;
+
+            $left = '<table border="0" cellpadding=1 cellspacing=1 class="table_tampil">';
+            $right = '</table>';
+            $tables = between($result, $left, $right);
+            
+            $rows = explode('</tr>',$tables);//dd($rows);
+
+            $responses = [];
+            $arrcode = [];
+
+            foreach ($rows as $row) {
+                $data = explode('<td>',$row);
+                if(count($data)>=6){
+                    $code = $data[2];
+                    $code = trim( str_replace('</td>','',$code) );
+                    $code = $code."";
+
+                    if(is_numeric($code)){
+                        $nama = $data[1];
+                        $nama = trim( str_replace('</td>','',$nama) );
+                        $nama = strtoupper($nama);
+                        
+                        $x = (object)[];
+                        $x->code = $code;
+                        $x->name = strtoupper($nama);
+                        $x->exist = false;
+                        $x->loading = false;
+                        array_push($responses,$x);
+                        array_push($arrcode,$code);
+                    }
+                }
+            }
+
+            if(count($arrcode)>=1){
+                $products = Products::select('barcode')->whereIn('barcode',$arrcode)->pluck('barcode')->toArray();
+                if(count($products)>=1){
+                    $n = count($responses);
+                    for ($i=0; $i < $n; $i++) { 
+                        if(in_array($responses[$i]->code,$products)){
+                            $responses[$i]->exist = true;
+                        }
+                    }
+                }
+            }
+            
+            return $responses;
+        }catch(\Exception $e){
+            return (config('app.debug')) ? $e->getMessage() : 'Error Exception in try action';
+            // echo '<pre>';
+            // return $e.'';
+        }
+    }
+
+    public function _save_new_handayani(Request $request)
+    {   
+        try{
+            $code           = $request->input('_code',false);
+            $name           = $request->input('_name',false);
+            $p              = new Products;
+            $p->uuid        = uuid4();
+            $p->barcode     = $code;
+            $p->full_name   = substr($name,0,42);
+            $p->short_name  = substr($name,0,20);
+            if($p->save()){
+                return 'OK';
+            }
+        }catch(\Exception $e){
+            return (config('app.debug')) ? $e->getMessage() : 'Error Exception in try action';
+            // echo '<pre>';
+            // return $e.'';
+        }
+    }
     
 }
