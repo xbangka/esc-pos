@@ -469,9 +469,9 @@ class AppposCtrl extends Controller
             }
 
             if($action==0 || $action==1){
-                $invoice    = 'INV' . $code_toko . date('ymd');
-                $last       = Orders::select(\DB::raw('MID(invoice, 15,4) as invoice_number'))
-                                    ->where(\DB::raw('LEFT(invoice, 14)'),'=',$invoice)
+                $invoice    = $code_toko . date('ymd');
+                $last       = Orders::select(\DB::raw('MID(invoice, 12,4) as invoice_number'))
+                                    ->where(\DB::raw('LEFT(invoice, 11)'),'=',$invoice)
                                     ->orderBy('invoice','desc')
                                     ->first();
                 $thelast    = isset($last->invoice_number) ? ((int)$last->invoice_number + 1) : 1 ;
@@ -554,7 +554,7 @@ class AppposCtrl extends Controller
 
             /// Cari Nama Pengguna atau nama kasir
             if( \Session::has('user') ){
-                $nameshow = str_Decode( \Session::get('user')->nameshow );
+                $nameshow = \Session::get('user')->nameshow;
             }else{
                 $nameshow = '-';
             }

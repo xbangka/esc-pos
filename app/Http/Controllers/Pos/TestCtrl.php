@@ -380,6 +380,7 @@ class TestCtrl extends Controller
         $js = array(
                     'axios.min.js',
                     'vue'.$version.'.js',
+                    'sweetalert2.all.min.js',
                     'getsimiliar.js');
         $css = array('bootstrap.min.css');
                     

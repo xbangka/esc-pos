@@ -48,7 +48,7 @@
                                     </p>
                                     <div v-if="!row.exist" class="d-flex w-100 justify-content-between">
                                         <div>&nbsp;</div>
-                                        <img v-if="row.loading" src="images/loadingthree.gif" height="10">
+                                        <div v-if="row.loading" v-html="iconloding" height="10"></div>
                                         <button v-else @click="btnSave(row)" type="button" class="btn btn-outline-secondary btn-sm">save</button>
                                     </div>
                                 </div>

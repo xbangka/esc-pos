@@ -20,8 +20,8 @@ class ChangeLog extends Model
 
     public static $messages = array();
 
-    public function user()
+    public function users()
     {
-        return $this->hasOne('App\Http\Models\User', 'id','user_id');
+        return $this->hasOne('App\Http\Models\Users', 'id','user_id');
     }
 }

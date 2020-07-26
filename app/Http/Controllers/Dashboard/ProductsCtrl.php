@@ -96,6 +96,9 @@ class ProductsCtrl extends Controller
                                         };
                                         return json_decode($x->categories,true);
                                     })
+                                    ->editColumn('desc', function ($x) {
+                                        return '-';
+                                    })
                                     ->removeColumn('category')
                                     ->removeColumn('categories.id')
                                     ->removeColumn('categories.uuid')

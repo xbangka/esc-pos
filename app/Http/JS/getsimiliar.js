@@ -5,6 +5,7 @@ var _token = "{{$csrf_token}}";
 var app = new Vue({
 	el: '.{{$appid}}',
 	data: {
+		iconloding: _iconsvgloading,
 		myword: '',
 		mytables: []
 	},
@@ -13,6 +14,11 @@ var app = new Vue({
         btnCariProduct: function (){
             var myword = this.myword;
             if(myword=='') return false;
+            Swal.fire({
+                html: _iconsvgloading+'<h5 class="mt-4">Sedang Mencari...</h5>',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
             axios
 				.get("{{$get_handayani}}?q="+myword)
 				.then(
@@ -20,17 +26,23 @@ var app = new Vue({
 						if(response.status==200){
 							var result      = response.data;
 							if(result!='' && result.length!=0 ){
-								this.mytables 	= result;
+                                this.mytables 	= result;
+                                Swal.close();
 							}else{
-								alert('tidak ada');
+                                Swal.fire({
+                                    html: _iconsvgwarning+'<h4 class="mt-4">Tidak Ada</h4>'
+                                });
 							}
 						}else{
 							console.log(response.statusText);
-							this.mytables 	= [];
+                            this.mytables 	= [];
+                            Swal.close();
 						}
 					}
 				).catch( function (error) {
-					alert('1 '+error);
+					Swal.fire({
+                        html: _iconsvgwarning+'<h4 class="mt-4">Failed</h4>'
+                    });
 					console.log(error);
                 });
         },
@@ -58,7 +70,9 @@ var app = new Vue({
                     }
                 }
             ).catch( function (error) {
-                alert('2 '+error);
+                Swal.fire({
+                    html: _iconsvgwarning+'<h4 class="mt-4">Failed</h4>'
+                });
                 console.log(error);
             });
 		}

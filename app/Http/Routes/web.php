@@ -93,6 +93,13 @@ Route::group(       ['middleware'   => 'checkSession'], function () {
         Route::get( 'my-employes/data'                  , 'MyEmployesCtrl@getData');
         Route::get( 'my-employes'                       , 'MyEmployesCtrl@index');
 
+        
+        //
+        // -- General Histories --------------------------------
+        //
+        Route::get( 'general-histories/data', 'GeneralHistoriesCtrl@getData');
+        Route::get( 'general-histories'     , 'GeneralHistoriesCtrl@index');
+
 
         //
         // ++ My Products  +++++++++++++++++++++++++++++++++++++
